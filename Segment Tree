@@ -1,0 +1,68 @@
+vector<int> tree[200001];
+int seg[800001];
+vector<int> v;
+void build_tree(int ind, int low, int high, bool orr){
+    if(low==high){
+        seg[ind]= v[low];
+        return;
+    }
+    int mid= (low + high)/2;
+    build_tree(2*ind+1, low, mid, !orr);
+    build_tree(2*ind+2, mid+1, high, !orr);
+    if(orr) seg[ind]= seg[2*ind +1] | seg[2*ind +2];
+    else seg[ind]= seg[2*ind +1]^seg[2*ind +2];
+}
+int query(int ind, int low, int high, int l, int r){
+    if(r<low || high< l ) return 0;
+    if(low>= l && high<= r) return seg[ind];
+    int mid= (low + high)/2;
+    int left= query(2*ind +1, low , mid, l, r);
+    int right= query(2*ind +2 , mid+1, high, l, r);
+       return  left + right;
+}
+void update(int node, int st, int end, int idx, int value, bool orr)
+{
+  if(idx< st || idx> end) return;
+  if(st == end)
+  {
+    seg[node] = value;
+    v[idx] = value;
+    //cout<<value<<endl;
+    return ;
+  }
+  int mid = (st+end)/2;
+ 
+  if(idx<=mid)
+    update(2*node+1, st, mid, idx, value, !orr);
+  else
+    update(2*node+2, mid+1, end, idx, value, !orr);
+  
+    if(orr) seg[node]= seg[2*node +1] | seg[2*node +2];
+
+    else seg[node]= seg[2*node +1]^seg[2*node +2];
+  
+}
+
+void solve(){
+ int n, q; cin>>n>>q;
+ int el= pow(2, n);
+ for(int i=0; i<el; i++){
+   int x; cin>>x;
+   v.push_back(x);
+ } 
+   
+   if(n%2==0) build_tree(0, 0, el-1, 0);
+   else build_tree(0, 0, el-1, 1);
+
+   while(q--){
+    int k, val;
+    cin>>k>>val;
+    k--;
+     if(n%2==0) update(0, 0, el-1, k, val, 0);
+     else update(0, 0, el-1, k, val, 1);
+    cout<<seg[0]<<endl;
+}
+return;
+  
+}
+   
